@@ -510,7 +510,7 @@
   }
 
   let newWordInvalid = computed(() => {
-    return !newWord.value.match(/^[a-zA-Z]+$/) || newWord.value.length < 2 || newWord.value.length > 15
+    return !newWord.value.match(/^[a-zA-Z]+$/) || newWord.value.length < 2
   })
 
   let newNumberOfGuessesInvalid = computed(() => {
