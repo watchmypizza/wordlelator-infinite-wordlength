@@ -6,7 +6,8 @@
   import CryptoJS from 'crypto-js'
   import JSURL from 'jsurl'
   import { PencilIcon, QuestionMarkCircleIcon, LightBulbIcon, XIcon, ChartBarIcon, RefreshIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/outline'
-  let encrypt = (text, useSalt) => {
+  import { allWords } from './assets/js/allWords.js'
+  const encrypt = (text, useSalt) => {
     if ( useSalt ){
       let salt = Math.random().toString(36).slice(2, 6)
       text = salt + '||' + text
@@ -14,7 +15,7 @@
 
     return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(text))
   }
-  let decrypt = (data, useSalt) => {
+  const decrypt = (data, useSalt) => {
     let encryptedWord = CryptoJS.enc.Base64.parse(data).toString(CryptoJS.enc.Utf8)
     if ( useSalt ){
       return encryptedWord.slice(encryptedWord.indexOf('||') + 2)
@@ -41,6 +42,7 @@
     showFormModal()
   }
   const wordLength = word.length > 0 ? word.length : 0
+  const allPossibleWords = allWords[wordLength]
   let numberOfGuesses = 0
   let creator = ''
   let hint1 = ''
@@ -518,7 +520,7 @@
   let newStartingWordsInvalid = computed(() => {
     let results = []
     for ( let i=0; i < newStartingWords.value.length; i++){
-      results.push( (newStartingWords.value[i].length < 2 || !newStartingWords.value[i].match(/^[a-zA-Z]+$/)) && newStartingWords.value[i].length != 0 )
+      results.push( (newStartingWords.value[i].length != newWord.value.length || !newStartingWords.value[i].match(/^[a-zA-Z]+$/)) && newStartingWords.value[i].length != 0 )
     }
     return results
   })
@@ -701,7 +703,7 @@
           <div class="mb-3 row">
             <div class="col-sm-4 col-form-label">
               <label for="word">Word</label>
-              <div data-bs-toggle="tooltip" title="Secret word to be guessed.<br/>2 or more letters. A-Z only.<br/>Does not need to be in dictionary." data-bs-placement="auto" data-bs-trigger="click" data-bs-html="true" class="tooltip-icon" >
+              <div data-bs-toggle="tooltip" title="Secret word to be guessed.<br/>2-15 Letters. A-Z only.<br/>Does not need to be in dictionary." data-bs-placement="auto" data-bs-trigger="click" data-bs-html="true" class="tooltip-icon" >
                 <QuestionMarkCircleIcon ></QuestionMarkCircleIcon>
               </div>
             </div>
@@ -905,12 +907,12 @@
           <div class="mb-3 row">
             <div class="col-sm-12">
               Guess the Wordle in the given number of tries. After each guess, the tiles will be colored to indicate how close to the target word your guess was.
-              <!-- <img src="./assets/green_clue.png" alt="Green Clue"/>
+              <img src="./assets/green_clue.png" alt="Green Clue"/>
               Green indicates the N is in the correct spot.
               <img src="./assets/yellow_clue.png" alt="Yellow Clue"/>
               Yellow indicates the U is in the word, but in another position.
               <p><img src="./assets/grey_clue.png" alt="Grey Clue"/>
-              Grey indicates the P is not in the word.</p> -->
+              Grey indicates the P is not in the word.</p>
               <p>Your creator may have left a hint for you. Look to see if the light bulb is "lit up". If it is, the creator has left a hint for you to use when you're ready.</p>
               <p>The given number of tries is set by the creator and can be no limit. Look above the grid to see how many guesses you have. </p>
               <p>Finally, if you wish to give up, you can hit the red X. You will be asked to confirm your decision.</p>
@@ -937,7 +939,7 @@
                 <tr>
                   <td class="col-sm-3">Word</td>
                   <td class="col-sm-9">
-                    Set a word of length 2 or more. There is no upper limit.<br/>
+                    Set a word of length 2-15. Limited as the dictionary only handles lengths 2-15.<br/>
                     Words are not required to be in the dictionary to be the secret word, allowing for proper nouns and loan words.<br/>
                     Words can ONLY contain the letters A-Z. No digits or other special characters.
                   </td>
